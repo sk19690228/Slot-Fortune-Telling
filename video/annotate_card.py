@@ -30,7 +30,29 @@ def detect_banner_top_y(img_rgb, search_from_frac=0.75, search_to_frac=0.98):
     return int(H * search_to_frac)
 
 
-def annotate(image_path, roman_number, caption_ja, out_path):
+STROKE_WIDTH = 4
+SIDE_MARGIN = 60  # keep clear of the card's decorative border
+NUM_TO_NAME_RATIO = 68 / 48
+GAP_TO_NAME_RATIO = 26 / 48
+
+
+def fit_font_size(draw, caption_ja, roman_number, max_width, max_size=100, min_size=20):
+    """Largest name_font size (num/gap scaled to match) whose combined
+    single-line width fits within max_width."""
+    for size in range(max_size, min_size - 1, -1):
+        name_font = ImageFont.truetype(FONT_PATH, size)
+        num_font = ImageFont.truetype(FONT_PATH, round(size * NUM_TO_NAME_RATIO))
+        gap = round(size * GAP_TO_NAME_RATIO)
+        num_w = draw.textbbox((0, 0), ROMAN_TO_CIRCLED[roman_number], font=num_font,
+                               stroke_width=STROKE_WIDTH)[2]
+        name_w = draw.textbbox((0, 0), caption_ja, font=name_font,
+                                stroke_width=STROKE_WIDTH)[2]
+        if num_w + gap + name_w <= max_width:
+            return size
+    return min_size
+
+
+def annotate(image_path, roman_number, caption_ja, out_path, name_size=None):
     img = Image.open(image_path).convert("RGBA")
     W, H = img.size
     draw = ImageDraw.Draw(img)
@@ -38,14 +60,17 @@ def annotate(image_path, roman_number, caption_ja, out_path):
     gold = (240, 200, 110, 255)
     dark = (20, 14, 8, 255)
 
-    num_font = ImageFont.truetype(FONT_PATH, 68)
-    name_font = ImageFont.truetype(FONT_PATH, 48)
-    gap = 26
+    if name_size is None:
+        name_size = fit_font_size(draw, caption_ja, roman_number, W - 2 * SIDE_MARGIN)
+
+    num_font = ImageFont.truetype(FONT_PATH, round(name_size * NUM_TO_NAME_RATIO))
+    name_font = ImageFont.truetype(FONT_PATH, name_size)
+    gap = round(name_size * GAP_TO_NAME_RATIO)
 
     num_text = ROMAN_TO_CIRCLED[roman_number]
-    num_bbox = draw.textbbox((0, 0), num_text, font=num_font, stroke_width=4)
+    num_bbox = draw.textbbox((0, 0), num_text, font=num_font, stroke_width=STROKE_WIDTH)
     num_w = num_bbox[2] - num_bbox[0]
-    name_bbox = draw.textbbox((0, 0), caption_ja, font=name_font, stroke_width=4)
+    name_bbox = draw.textbbox((0, 0), caption_ja, font=name_font, stroke_width=STROKE_WIDTH)
     name_w = name_bbox[2] - name_bbox[0]
 
     total_w = num_w + gap + name_w
@@ -80,6 +105,8 @@ def annotate(image_path, roman_number, caption_ja, out_path):
 
 
 if __name__ == "__main__":
-    src = "/home/user/Slot-Fortune-Telling/video/cards/13_the_magus.webp"
-    annotate(src, 1, "蛇と杖を掲げる星辰の魔術師",
-             "/home/user/Slot-Fortune-Telling/video/cards/sample_13_the_magus.jpg")
+    src = "/home/user/Slot-Fortune-Telling/video/cards/14_lust.webp"
+    caption = "薔薇と七頭の獅子を従え杯を掲げる情熱の女神"
+    print("caption length:", len(caption))
+    annotate(src, 11, caption,
+             "/home/user/Slot-Fortune-Telling/video/cards/sample_14_lust.jpg")
