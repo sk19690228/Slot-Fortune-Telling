@@ -18,7 +18,19 @@ ROMAN_TO_CIRCLED = {
 }
 
 
-def annotate(image_path, roman_number, caption_ja, banner_top_frac, out_path):
+def detect_banner_top_y(img_rgb, search_from_frac=0.75, search_to_frac=0.98):
+    """Scan down the vertical center line to find where the card's dark
+    name-banner begins (first sustained near-black run)."""
+    W, H = img_rgb.size
+    px = img_rgb.load()
+    x = W // 2
+    for y in range(int(H * search_from_frac), int(H * search_to_frac)):
+        if sum(px[x, y]) < 90 and all(sum(px[x, y + k]) < 140 for k in range(15)):
+            return y
+    return int(H * search_to_frac)
+
+
+def annotate(image_path, roman_number, caption_ja, out_path):
     img = Image.open(image_path).convert("RGBA")
     W, H = img.size
     draw = ImageDraw.Draw(img)
@@ -39,11 +51,12 @@ def annotate(image_path, roman_number, caption_ja, banner_top_frac, out_path):
     total_w = num_w + gap + name_w
     start_x = (W - total_w) / 2
 
-    banner_top_y = int(H * banner_top_frac)
-    cy = banner_top_y - 92
+    banner_top_y = detect_banner_top_y(img.convert("RGB"))
 
     pad_x, pad_y = 22, 14
     badge_h = max(num_bbox[3] - num_bbox[1], name_bbox[3] - name_bbox[1]) + pad_y * 2
+    margin = 14
+    cy = banner_top_y - margin - badge_h / 2
     badge = [W / 2 - total_w / 2 - pad_x, cy - badge_h / 2,
              W / 2 + total_w / 2 + pad_x, cy + badge_h / 2]
     badge_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
@@ -67,6 +80,6 @@ def annotate(image_path, roman_number, caption_ja, banner_top_frac, out_path):
 
 
 if __name__ == "__main__":
-    src = "/home/user/Slot-Fortune-Telling/video/cards/11_the_moon.webp"
-    annotate(src, 18, "月の運河を見守るアヌビスの守護者", 0.895,
-             "/home/user/Slot-Fortune-Telling/video/cards/sample_11_the_moon.jpg")
+    src = "/home/user/Slot-Fortune-Telling/video/cards/13_the_magus.webp"
+    annotate(src, 1, "蛇と杖を掲げる星辰の魔術師",
+             "/home/user/Slot-Fortune-Telling/video/cards/sample_13_the_magus.jpg")
