@@ -78,9 +78,9 @@ def annotate(image_path, roman_number, caption_ja, out_path, name_size=None):
 
     banner_top_y = detect_banner_top_y(img.convert("RGB"))
 
-    pad_x, pad_y = 30, 20
+    pad_x, pad_y = 30, 14
     badge_h = max(num_bbox[3] - num_bbox[1], name_bbox[3] - name_bbox[1]) + pad_y * 2
-    margin = 14
+    margin = 6
     cy = banner_top_y - margin - badge_h / 2
     badge = [W / 2 - total_w / 2 - pad_x, cy - badge_h / 2,
              W / 2 + total_w / 2 + pad_x, cy + badge_h / 2]
@@ -105,8 +105,8 @@ def annotate(image_path, roman_number, caption_ja, out_path, name_size=None):
 
 
 if __name__ == "__main__":
-    src = "/home/user/Slot-Fortune-Telling/video/cards/14_lust.webp"
-    caption = "薔薇と七頭の獅子を従え杯を掲げる情熱の女神"
-    print("caption length:", len(caption))
-    annotate(src, 11, caption,
-             "/home/user/Slot-Fortune-Telling/video/cards/sample_14_lust.jpg")
+    src = "/home/user/Slot-Fortune-Telling/video/cards/22_death.webp"
+    caption = "三日月と炎の鳳凰を従える氷の死神"
+    annotate(src, 13, caption,
+             "/home/user/Slot-Fortune-Telling/video/cards/sample_22_death.jpg",
+             name_size=39)
