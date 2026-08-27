@@ -59,7 +59,7 @@ def fit_font_size(draw, caption_ja, roman_number, max_width, max_size=100, min_s
     return min_size
 
 
-def annotate(image_path, roman_number, caption_ja, out_path, name_size=None):
+def annotate(image_path, roman_number, caption_ja, out_path, name_size=None, banner_top_y=None):
     img = Image.open(image_path).convert("RGBA")
     W, H = img.size
     draw = ImageDraw.Draw(img)
@@ -78,7 +78,8 @@ def annotate(image_path, roman_number, caption_ja, out_path, name_size=None):
     total_w = num_w + gap + name_w
     start_x = (W - total_w) / 2
 
-    banner_top_y = detect_banner_top_y(img.convert("RGB"))
+    if banner_top_y is None:
+        banner_top_y = detect_banner_top_y(img.convert("RGB"))
 
     pad_x, pad_y = 30, 14
     badge_h = max(num_w, name_h) + pad_y * 2
@@ -105,8 +106,13 @@ def annotate(image_path, roman_number, caption_ja, out_path, name_size=None):
 
 
 if __name__ == "__main__":
+    ref = Image.open(
+        "/home/user/Slot-Fortune-Telling/video/cards/13_the_magus.webp").convert("RGB")
+    fixed_banner_top_y = detect_banner_top_y(ref)
+    print("fixed_banner_top_y (from card 1, The Magus):", fixed_banner_top_y)
+
     src = "/home/user/Slot-Fortune-Telling/video/cards/18_the_fool.webp"
     caption = "虎と鰐に見守られ舞う虹色の旅人"
     annotate(src, 0, caption,
              "/home/user/Slot-Fortune-Telling/video/cards/sample_18_the_fool.jpg",
-             name_size=39)
+             name_size=39, banner_top_y=fixed_banner_top_y)

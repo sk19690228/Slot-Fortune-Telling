@@ -3,11 +3,12 @@
 scene caption, using a common font size fitted to the longest caption."""
 import os
 
-from annotate_card import annotate, fit_font_size
-from PIL import Image, ImageDraw
+from annotate_card import annotate, detect_banner_top_y
+from PIL import Image
 
 CARDS_DIR = "/home/user/Slot-Fortune-Telling/video/cards"
 OUT_DIR = "/home/user/Slot-Fortune-Telling/video/cards/annotated"
+REFERENCE_CARD = "13_the_magus.webp"  # card ① — its caption position is the shared target
 
 # (filename, roman_number, japanese caption)
 CARDS = [
@@ -40,10 +41,16 @@ COMMON_NAME_SIZE = 39  # fitted to the longest caption (Lust, 21 chars)
 
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
+
+    ref_img = Image.open(os.path.join(CARDS_DIR, REFERENCE_CARD)).convert("RGB")
+    fixed_banner_top_y = detect_banner_top_y(ref_img)
+    print(f"using fixed banner_top_y={fixed_banner_top_y} (from {REFERENCE_CARD})")
+
     for fname, roman, caption in CARDS:
         src = os.path.join(CARDS_DIR, fname)
         out = os.path.join(OUT_DIR, os.path.splitext(fname)[0] + ".jpg")
-        annotate(src, roman, caption, out, name_size=COMMON_NAME_SIZE)
+        annotate(src, roman, caption, out, name_size=COMMON_NAME_SIZE,
+                 banner_top_y=fixed_banner_top_y)
 
 
 if __name__ == "__main__":
