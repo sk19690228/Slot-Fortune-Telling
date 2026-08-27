@@ -38,14 +38,14 @@ def annotate(image_path, roman_number, caption_ja, out_path):
     gold = (240, 200, 110, 255)
     dark = (20, 14, 8, 255)
 
-    num_font = ImageFont.truetype(FONT_PATH, 48)
-    name_font = ImageFont.truetype(FONT_PATH, 34)
-    gap = 20
+    num_font = ImageFont.truetype(FONT_PATH, 68)
+    name_font = ImageFont.truetype(FONT_PATH, 48)
+    gap = 26
 
     num_text = ROMAN_TO_CIRCLED[roman_number]
-    num_bbox = draw.textbbox((0, 0), num_text, font=num_font, stroke_width=3)
+    num_bbox = draw.textbbox((0, 0), num_text, font=num_font, stroke_width=4)
     num_w = num_bbox[2] - num_bbox[0]
-    name_bbox = draw.textbbox((0, 0), caption_ja, font=name_font, stroke_width=3)
+    name_bbox = draw.textbbox((0, 0), caption_ja, font=name_font, stroke_width=4)
     name_w = name_bbox[2] - name_bbox[0]
 
     total_w = num_w + gap + name_w
@@ -53,7 +53,7 @@ def annotate(image_path, roman_number, caption_ja, out_path):
 
     banner_top_y = detect_banner_top_y(img.convert("RGB"))
 
-    pad_x, pad_y = 22, 14
+    pad_x, pad_y = 30, 20
     badge_h = max(num_bbox[3] - num_bbox[1], name_bbox[3] - name_bbox[1]) + pad_y * 2
     margin = 14
     cy = banner_top_y - margin - badge_h / 2
@@ -68,12 +68,12 @@ def annotate(image_path, roman_number, caption_ja, out_path):
 
     num_h = num_bbox[3] - num_bbox[1]
     draw.text((start_x - num_bbox[0], cy - num_h / 2 - num_bbox[1]), num_text,
-              font=num_font, fill=gold, stroke_width=3, stroke_fill=dark)
+              font=num_font, fill=gold, stroke_width=4, stroke_fill=dark)
 
     name_h = name_bbox[3] - name_bbox[1]
     name_x = start_x + num_w + gap
     draw.text((name_x - name_bbox[0], cy - name_h / 2 - name_bbox[1]), caption_ja,
-              font=name_font, fill=gold, stroke_width=3, stroke_fill=dark)
+              font=name_font, fill=gold, stroke_width=4, stroke_fill=dark)
 
     img.convert("RGB").save(out_path, quality=95)
     print("wrote", out_path)
