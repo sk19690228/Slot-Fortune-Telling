@@ -18,12 +18,10 @@ ROMAN_TO_CIRCLED = {
 }
 
 
-def annotate(image_path, roman_number, banner_top_frac, out_path):
+def annotate(image_path, roman_number, caption_ja, banner_top_frac, out_path):
     img = Image.open(image_path).convert("RGBA")
     W, H = img.size
     draw = ImageDraw.Draw(img)
-
-    filename = os.path.splitext(os.path.basename(image_path))[0]
 
     gold = (240, 200, 110, 255)
     dark = (20, 14, 8, 255)
@@ -35,14 +33,14 @@ def annotate(image_path, roman_number, banner_top_frac, out_path):
     num_text = ROMAN_TO_CIRCLED[roman_number]
     num_bbox = draw.textbbox((0, 0), num_text, font=num_font, stroke_width=3)
     num_w = num_bbox[2] - num_bbox[0]
-    name_bbox = draw.textbbox((0, 0), filename, font=name_font, stroke_width=3)
+    name_bbox = draw.textbbox((0, 0), caption_ja, font=name_font, stroke_width=3)
     name_w = name_bbox[2] - name_bbox[0]
 
     total_w = num_w + gap + name_w
     start_x = (W - total_w) / 2
 
     banner_top_y = int(H * banner_top_frac)
-    cy = banner_top_y - 44
+    cy = banner_top_y - 92
 
     pad_x, pad_y = 22, 14
     badge_h = max(num_bbox[3] - num_bbox[1], name_bbox[3] - name_bbox[1]) + pad_y * 2
@@ -61,7 +59,7 @@ def annotate(image_path, roman_number, banner_top_frac, out_path):
 
     name_h = name_bbox[3] - name_bbox[1]
     name_x = start_x + num_w + gap
-    draw.text((name_x - name_bbox[0], cy - name_h / 2 - name_bbox[1]), filename,
+    draw.text((name_x - name_bbox[0], cy - name_h / 2 - name_bbox[1]), caption_ja,
               font=name_font, fill=gold, stroke_width=3, stroke_fill=dark)
 
     img.convert("RGB").save(out_path, quality=95)
@@ -69,5 +67,6 @@ def annotate(image_path, roman_number, banner_top_frac, out_path):
 
 
 if __name__ == "__main__":
-    src = "/home/user/Slot-Fortune-Telling/video/cards/01_the_sun.webp"
-    annotate(src, 19, 0.895, "/home/user/Slot-Fortune-Telling/video/cards/sample_01_the_sun.jpg")
+    src = "/home/user/Slot-Fortune-Telling/video/cards/11_the_moon.webp"
+    annotate(src, 18, "月の運河を見守るアヌビスの守護者", 0.895,
+             "/home/user/Slot-Fortune-Telling/video/cards/sample_11_the_moon.jpg")
